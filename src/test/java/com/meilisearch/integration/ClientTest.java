@@ -2,17 +2,23 @@ package com.meilisearch.integration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.gson.*;
 import com.meilisearch.integration.classes.AbstractIT;
 import com.meilisearch.integration.classes.TestData;
+import com.meilisearch.sdk.FederationOptions;
 import com.meilisearch.sdk.Index;
+import com.meilisearch.sdk.IndexSearchRequest;
+import com.meilisearch.sdk.MultiSearchFederation;
+import com.meilisearch.sdk.MultiSearchRequest;
 import com.meilisearch.sdk.exceptions.MeilisearchApiException;
 import com.meilisearch.sdk.exceptions.MeilisearchException;
 import com.meilisearch.sdk.model.*;
 import com.meilisearch.sdk.utils.Movie;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
 import org.junit.jupiter.api.*;
 
 @Tag("integration")
@@ -323,5 +329,46 @@ public class ClientTest extends AbstractIT {
         // TODO: Throws StackOverflowError on JDK 1.8, but InaccessibleObjectException on JDK9+
         Assertions.assertThrows(StackOverflowError.class, () -> gsonWithTransient.toJson(test));
         Assertions.assertDoesNotThrow(() -> gson.toJson(test));
+    }
+
+    @Test
+    public void testFederation() {
+        HashSet<String> indexUids = new HashSet<>();
+        indexUids.add("MultiSearch1");
+        indexUids.add("MultiSearch2");
+
+        for (String indexUid : indexUids) {
+            Index index = client.index(indexUid);
+
+            TestData<Movie> testData = this.getTestData(MOVIES_INDEX, Movie.class);
+            TaskInfo task = index.addDocuments(testData.getRaw());
+
+            index.waitForTask(task.getTaskUid());
+        }
+
+        MultiSearchRequest search = new MultiSearchRequest();
+        MultiSearchFederation federation = new MultiSearchFederation().setLimit(2);
+
+        for (String indexUid : indexUids) {
+            search.addQuery(
+                    new IndexSearchRequest(indexUid)
+                            .setQuery("batman")
+                            .setShowRankingScore(true)
+                            .setRankingScoreThreshold(0.98)
+                            .setLimit(20)
+                            .setFederationOptions(new FederationOptions().setWeight(0.9)));
+        }
+
+        MultiSearchResult[] results = client.multiSearch(search, federation).getResults();
+        assertNotNull(results);
+        assertThat(results.length, is(2));
+
+        for (MultiSearchResult searchResult : results) {
+            assertThat(indexUids.contains(searchResult.getIndexUid()), is(true));
+            assertThat(
+                    searchResult.getHits().get(0).get("_rankingScore"), instanceOf(Double.class));
+            Double rankingScore = (Double) searchResult.getHits().get(0).get("_rankingScore");
+            assertThat(rankingScore, is(greaterThanOrEqualTo(0.98)));
+        }
     }
 }

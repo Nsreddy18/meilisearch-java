@@ -777,11 +777,13 @@ public class SearchTest extends AbstractIT {
 
         MultiSearchRequest search = new MultiSearchRequest();
 
+        MultiSearchFederation federation = new MultiSearchFederation();
+
         for (String indexUid : indexUids) {
             search.addQuery(new IndexSearchRequest(indexUid).setQuery("batman"));
         }
 
-        MultiSearchResult[] results = client.multiSearch(search).getResults();
+        MultiSearchResult[] results = client.multiSearch(search, federation).getResults();
 
         assertThat(results.length, is(2));
 
@@ -813,6 +815,8 @@ public class SearchTest extends AbstractIT {
 
         MultiSearchRequest search = new MultiSearchRequest();
 
+        MultiSearchFederation federation = new MultiSearchFederation();
+
         for (String indexUid : indexUids) {
             search.addQuery(
                     new IndexSearchRequest(indexUid)
@@ -822,7 +826,7 @@ public class SearchTest extends AbstractIT {
                             .setLimit(20));
         }
 
-        MultiSearchResult[] results = client.multiSearch(search).getResults();
+        MultiSearchResult[] results = client.multiSearch(search, federation).getResults();
 
         assertThat(results.length, is(2));
 

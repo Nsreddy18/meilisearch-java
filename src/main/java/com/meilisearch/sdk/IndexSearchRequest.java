@@ -34,6 +34,7 @@ public class IndexSearchRequest {
     protected Boolean showRankingScore;
     protected Boolean showRankingScoreDetails;
     protected Double rankingScoreThreshold;
+    private FederationOptions federationOptions;
 
     /**
      * Constructor for MultiSearchRequest for building search queries with the default values:
@@ -93,7 +94,12 @@ public class IndexSearchRequest {
                         .putOpt("filter", this.filterArray)
                         .putOpt("showRankingScore", this.showRankingScore)
                         .putOpt("showRankingScoreDetails", this.showRankingScoreDetails)
-                        .putOpt("rankingScoreThreshold", this.rankingScoreThreshold);
+                        .putOpt("rankingScoreThreshold", this.rankingScoreThreshold)
+                        .putOpt(
+                                "FederationOptions",
+                                this.federationOptions != null
+                                        ? this.federationOptions.toString()
+                                        : null);
 
         return jsonObject.toString();
     }

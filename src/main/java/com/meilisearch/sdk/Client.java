@@ -22,6 +22,7 @@ import com.meilisearch.sdk.model.TaskInfo;
 import com.meilisearch.sdk.model.TasksQuery;
 import com.meilisearch.sdk.model.TasksResults;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -428,10 +429,16 @@ public class Client {
         this.keysHandler.deleteKey(key);
     }
 
-    public Results<MultiSearchResult> multiSearch(MultiSearchRequest search)
+    public Results<MultiSearchResult> multiSearch(
+            MultiSearchRequest search, MultiSearchFederation federation)
             throws MeilisearchException {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("queries", search);
+        if (federation != null) {
+            payload.put("federation", federation);
+        }
         return this.config.httpClient.post(
-                "/multi-search", search, Results.class, MultiSearchResult.class);
+                "/multi-search", payload, Results.class, MultiSearchResult.class);
     }
 
     public void experimentalFeatures(Map<String, Boolean> features) {
