@@ -1,24 +1,27 @@
 package com.meilisearch.sdk;
 
-import java.util.HashMap;
-import java.util.Map;
-import lombok.ToString;
 
-@ToString
+import org.json.JSONObject;
+
 public class FederationOptions {
 
-    private Double weight = null;
+    private Double weight;
 
     public FederationOptions setWeight(Double weight) {
         this.weight = weight;
         return this;
     }
 
-    public Map<String, Double> toMap() {
-        Map<String, Double> optionsMap = new HashMap<>();
-        if (weight != null) {
-            optionsMap.put("weight", weight);
-        }
-        return optionsMap;
+    /**
+     * Method that returns the JSON String of the FederationOptions
+     *
+     * @return JSON String of the FederationOptions 
+     */
+    @Override
+    public String toString(){
+        JSONObject jsonObject =
+                new JSONObject()
+                .put("weight", this.weight);
+        return jsonObject.toString();
     }
 }
