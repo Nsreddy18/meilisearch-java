@@ -433,7 +433,7 @@ public class Client {
             MultiSearchRequest search, MultiSearchFederation federation)
             throws MeilisearchException {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("queries", search);
+        payload.put("queries", search.getQueries());
         if (federation != null) {
             payload.put("federation", federation);
         }

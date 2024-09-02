@@ -339,7 +339,7 @@ public class ClientTest extends AbstractIT {
 
         for (String indexUid : indexUids) {
             Index index = client.index(indexUid);
-
+            
             TestData<Movie> testData = this.getTestData(MOVIES_INDEX, Movie.class);
             TaskInfo task = index.addDocuments(testData.getRaw());
 
@@ -355,7 +355,6 @@ public class ClientTest extends AbstractIT {
                             .setQuery("batman")
                             .setShowRankingScore(true)
                             .setRankingScoreThreshold(0.98)
-                            .setLimit(20)
                             .setFederationOptions(new FederationOptions().setWeight(0.9)));
         }
 

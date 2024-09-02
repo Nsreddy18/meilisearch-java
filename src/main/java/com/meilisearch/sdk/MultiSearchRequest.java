@@ -10,6 +10,10 @@ public class MultiSearchRequest {
         this.queries = new ArrayList();
     }
 
+    public ArrayList<IndexSearchRequest> getQueries(){
+        return this.queries;
+    }
+
     /**
      * Method to add new Query
      *
